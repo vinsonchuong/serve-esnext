@@ -1,2 +1,1 @@
-import run from 'serve-esnext';
-run();
+process.stdout.write('Hello World!\n');

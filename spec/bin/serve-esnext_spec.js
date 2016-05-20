@@ -1,8 +1,8 @@
-import {childProcess} from 'node-promise-es6';
+import Directory from 'directory-helpers';
 
 describe('serve-esnext', () => {
   it('outputs "3...2...1...Hello World!"', async () => {
-    const {stdout} = await childProcess.exec('serve-esnext');
-    expect(stdout.trim()).toBe('3...2...1...Hello World!');
+    const directory = new Directory('.');
+    expect(await directory.exec('serve-esnext')).toBe('Hello World!');
   });
 });
