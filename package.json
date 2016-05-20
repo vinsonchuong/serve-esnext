@@ -1,0 +1,35 @@
+{
+  "name": "serve-esnext",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/vinsonchuong/serve-esnext",
+  "bugs": "https://github.com/vinsonchuong/serve-esnext/issues",
+  "license": "MIT",
+  "author": "Vinson Chuong <vinsonchuong@gmail.com>",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "src"
+  ],
+  "main": "src/index.js",
+  "bin": {
+    "serve-esnext": "src/bin/serve-esnext.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vinsonchuong/serve-esnext"
+  },
+  "scripts": {
+    "prepublish": "dist-es6",
+    "test": "eslint && jasmine"
+  },
+  "dependencies": {
+    "node-promise-es6": "^0.3.2"
+  },
+  "devDependencies": {
+    "dist-es6": "^0.1.18",
+    "jasmine-es6": "^0.1.10",
+    "eslint-defaults": "^0.2.5"
+  }
+}
