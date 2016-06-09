@@ -9,7 +9,7 @@ function withHttpServer(test) {
     } finally {
       await httpServer.close();
     }
-  }
+  };
 }
 
 describe('HttpServer', () => {
