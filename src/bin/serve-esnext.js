@@ -1,14 +1,17 @@
-import * as http from 'http';
 import Directory from 'directory-helpers';
+import HttpServer from 'serve-esnext/lib/http-server';
 
 const directory = new Directory('.');
+const httpServer = new HttpServer(8080);
 
-http
-  .createServer(async (request, response) => {
-    response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-    response.write(await directory.read('src/index.html'));
-    response.end();
-  })
-  .listen(8080, () => {
-    process.stdout.write('Listening on :8080\n');
-  });
+async function run() {
+  const request = await httpServer;
+  request.respond(await directory.read('src/index.html'));
+  await run();
+}
+
+run().catch((error) => {
+  setTimeout(() => {
+    throw error;
+  }, 0);
+});
