@@ -17,8 +17,8 @@ class Request {
   get path() {
     const {pathname} = url.parse(this.request.url);
     return pathname === '/' ?
-      '/index.html' :
-      pathname;
+      'index.html' :
+      pathname.replace(/^\//, '');
   }
 
   respond(body) {

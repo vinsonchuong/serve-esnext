@@ -6,7 +6,7 @@ const httpServer = new HttpServer(8080);
 
 async function run() {
   const request = await httpServer;
-  request.respond(await directory.read('src/index.html'));
+  request.respond(await directory.read(directory.path('src', request.path)));
   await run();
 }
 
