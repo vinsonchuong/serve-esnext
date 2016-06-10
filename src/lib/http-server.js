@@ -1,5 +1,12 @@
 import * as http from 'http';
+import * as url from 'url';
+import * as path from 'path';
 import {AwaitableObservable} from 'esnext-async';
+
+const types = {
+  '.html': 'text/html',
+  '.js': 'application/javascript'
+};
 
 class Request {
   constructor(request, response) {
@@ -8,12 +15,17 @@ class Request {
   }
 
   get path() {
-    return 'index.html';
+    const {pathname} = url.parse(this.request.url);
+    return pathname === '/' ?
+      '/index.html' :
+      pathname;
   }
 
   respond(body) {
+    const mimeType = types[path.extname(this.path)];
+
     this.response.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf-8'
+      'Content-Type': `${mimeType}; charset=utf-8`
     });
     this.response.write(body);
     this.response.end();
