@@ -20,14 +20,21 @@ class Project extends Directory {
 }
 
 describe('serve-esnext', () => {
-  afterEach(async () => {
-    const project = new Project('project');
-    await project.stop();
-    await project.remove();
-  });
+  function withDependencies(test) {
+    return async () => {
+      const project = new Project('project');
+      const browser = new PhantomJS();
+      try {
+        await test(project, browser);
+      } finally {
+        await project.stop();
+        await project.remove();
+        await browser.exit();
+      }
+    };
+  }
 
-  it('serves ES.next to a browser', async () => {
-    const project = new Project('project');
+  it('serves index.html', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -37,18 +44,15 @@ describe('serve-esnext', () => {
         }
       },
       'src/index.html': `
-      <!doctype html>
-      <meta charset="utf-8">
-      <div id="container">Hello World!</div>
+        <!doctype html>
+        <meta charset="utf-8">
+        <div id="container">Hello World!</div>
       `
     });
 
-    const server = project.start();
-    await server.filter((output) => output.match(/Listening/));
+    await project.start().filter((output) => output.match(/Listening/));
 
-    const browser = new PhantomJS();
     await browser.open('http://localhost:8080');
     expect((await browser.find('#container')).textContent).toBe('Hello World!');
-    await browser.exit();
-  });
+  }));
 });
