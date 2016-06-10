@@ -1,22 +1,33 @@
 import * as http from 'http';
 import {AwaitableObservable} from 'esnext-async';
 
+class Request {
+  constructor(request, response) {
+    this.request = request;
+    this.response = response;
+  }
+
+  get path() {
+    return 'index.html';
+  }
+
+  respond(body) {
+    this.response.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8'
+    });
+    this.response.write(body);
+    this.response.end();
+
+  }
+}
+
 export default class extends AwaitableObservable {
   constructor(port) {
     const server = http.createServer();
 
     super((observer) => {
       server.on('request', (request, response) => {
-        observer.next({
-          path: 'index.html',
-          respond(body) {
-            response.writeHead(200, {
-              'Content-Type': 'text/html; charset=utf-8'
-            });
-            response.write(body);
-            response.end();
-          }
-        });
+        observer.next(new Request(request, response));
       });
     });
 
@@ -36,13 +47,3 @@ export default class extends AwaitableObservable {
     });
   }
 }
-
-// http
-//   .createServer(async (request, response) => {
-//     // 'application/javascript; charset=utf-8'
-//     response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-//     response.write(await directory.read('src/index.html'));
-//     response.end();
-//   })
-//   .listen(8080, () => {
-//   });
