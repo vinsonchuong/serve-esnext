@@ -41,7 +41,7 @@ describe('serve-esnext', () => {
     };
   }
 
-  it('serves index.html', withDependencies(async (project, browser) => {
+  it('serves index.html when requesting /', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -63,7 +63,7 @@ describe('serve-esnext', () => {
     expect((await browser.find('#container')).textContent).toBe('Hello World!');
   }));
 
-  it('serves app.js', withDependencies(async (project, browser) => {
+  it('serves ES5 code', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -80,6 +80,36 @@ describe('serve-esnext', () => {
       `,
       'src/app.js': `
         window.container.textContent = 'Hello World!';
+      `
+    });
+
+    await project.start().filter((output) => output.match(/Listening/));
+
+    await browser.open('http://localhost:8080');
+    expect(await browser.find('#container', {text: 'Hello World!'}))
+      .not.toBe(null);
+  }));
+
+  it('serves ES.next code compiled into ES5', withDependencies(async (project, browser) => {
+    await project.write({
+      'package.json': {
+        name: 'project',
+        private: true,
+        scripts: {
+          start: 'serve-esnext'
+        }
+      },
+      'src/index.html': `
+        <!doctype html>
+        <meta charset="utf-8">
+        <div id="container"></div>
+        <script src="/app.js"></script>
+      `,
+      'src/app.js': `
+        function addText(text) {
+          this.textContent = text;
+        }
+        window.container::addText('Hello World!');
       `
     });
 
