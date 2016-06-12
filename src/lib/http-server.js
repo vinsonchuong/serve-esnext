@@ -4,8 +4,8 @@ import * as path from 'path';
 import {AwaitableObservable} from 'esnext-async';
 
 const types = {
-  '.html': 'text/html',
-  '.js': 'application/javascript'
+  html: 'text/html',
+  js: 'application/javascript'
 };
 
 class Request {
@@ -21,8 +21,12 @@ class Request {
       pathname.replace(/^\//, '');
   }
 
+  get type() {
+    return path.extname(this.path).slice(1);
+  }
+
   respond(body) {
-    const mimeType = types[path.extname(this.path)];
+    const mimeType = types[this.type];
 
     this.response.writeHead(200, {
       'Content-Type': `${mimeType}; charset=utf-8`

@@ -20,6 +20,7 @@ describe('HttpServer', () => {
 
     const request = await httpServer;
     expect(request.path).toBe('index.html');
+    expect(request.type).toBe('html');
     request.respond('<!doctype html>\n<meta charset="utf-8">');
 
     const response = await responsePromise;
@@ -36,6 +37,7 @@ describe('HttpServer', () => {
 
     const request = await httpServer;
     expect(request.path).toBe('app.js');
+    expect(request.type).toBe('js');
     request.respond('console.log("Hello World!");');
 
     const response = await responsePromise;
