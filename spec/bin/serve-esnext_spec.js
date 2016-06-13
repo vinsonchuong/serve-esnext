@@ -63,7 +63,7 @@ describe('serve-esnext', () => {
     expect((await browser.find('#container')).textContent).toBe('Hello World!');
   }));
 
-  it('serves ES5 code', withDependencies(async (project, browser) => {
+  xit('serves ES.next code compiled into ES5', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -76,10 +76,14 @@ describe('serve-esnext', () => {
         <!doctype html>
         <meta charset="utf-8">
         <div id="container"></div>
-        <script src="/app.js"></script>
+        <script>System.transpiler = null;</script>
+        <script type="module" src="/app.js"></script>
       `,
       'src/app.js': `
-        window.container.textContent = 'Hello World!';
+        function addText(text) {
+          this.textContent = text;
+        }
+        window.container::addText('Hello World!');
       `
     });
 
@@ -90,7 +94,7 @@ describe('serve-esnext', () => {
       .not.toBe(null);
   }));
 
-  it('serves ES.next code compiled into ES5', withDependencies(async (project, browser) => {
+  xit('serves ES.next modules compiled into ES5', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -106,10 +110,13 @@ describe('serve-esnext', () => {
         <script src="/app.js"></script>
       `,
       'src/app.js': `
-        function addText(text) {
+        import addText from './add-text';
+        window.container::addText('Hello World!');
+      `,
+      'src/add-text.js': `
+        export default function(text) {
           this.textContent = text;
         }
-        window.container::addText('Hello World!');
       `
     });
 
