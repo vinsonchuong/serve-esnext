@@ -39,7 +39,7 @@ describe('JsCompiler', () => {
     });
 
     const compiler = new JsCompiler(project);
-    const modulePath = 'es6-module-loader/dist/es6-module-loader-dev.js';
+    const modulePath = 'systemjs/dist/system.src.js';
     expect(await compiler.compile(modulePath))
       .toBe(await project.read(require.resolve(modulePath)));
   }));

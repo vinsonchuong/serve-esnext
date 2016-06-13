@@ -13,7 +13,12 @@ const compilers = {
 
 async function run() {
   const request = await httpServer;
-  const compiledCode = await compilers[request.type].compile(request.path);
+  const compiler = compilers[request.type] || {
+    compile() {
+      return '';
+    }
+  };
+  const compiledCode = await compiler.compile(request.path);
   request.respond(compiledCode);
   await run();
 }

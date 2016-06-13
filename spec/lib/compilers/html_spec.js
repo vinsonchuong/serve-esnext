@@ -28,7 +28,7 @@ describe('HtmlCompiler', () => {
       '<html>',
       '<head>',
       '<meta charset="utf-8">',
-      '<script src="es6-module-loader/dist/es6-module-loader-dev.js"></script>',
+      '<script src="systemjs/dist/system.src.js"></script>',
       '</head>',
       '<body>',
       '<div id="container"></div>',

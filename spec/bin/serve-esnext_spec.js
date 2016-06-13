@@ -63,7 +63,7 @@ describe('serve-esnext', () => {
     expect((await browser.find('#container')).textContent).toBe('Hello World!');
   }));
 
-  xit('serves ES.next code compiled into ES5', withDependencies(async (project, browser) => {
+  it('serves ES.next modules compiled into ES5', withDependencies(async (project, browser) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -76,41 +76,10 @@ describe('serve-esnext', () => {
         <!doctype html>
         <meta charset="utf-8">
         <div id="container"></div>
-        <script>System.transpiler = null;</script>
-        <script type="module" src="/app.js"></script>
+        <script>System.import('project/app.js')</script>
       `,
       'src/app.js': `
-        function addText(text) {
-          this.textContent = text;
-        }
-        window.container::addText('Hello World!');
-      `
-    });
-
-    await project.start().filter((output) => output.match(/Listening/));
-
-    await browser.open('http://localhost:8080');
-    expect(await browser.find('#container', {text: 'Hello World!'}))
-      .not.toBe(null);
-  }));
-
-  xit('serves ES.next modules compiled into ES5', withDependencies(async (project, browser) => {
-    await project.write({
-      'package.json': {
-        name: 'project',
-        private: true,
-        scripts: {
-          start: 'serve-esnext'
-        }
-      },
-      'src/index.html': `
-        <!doctype html>
-        <meta charset="utf-8">
-        <div id="container"></div>
-        <script src="/app.js"></script>
-      `,
-      'src/app.js': `
-        import addText from './add-text';
+        import addText from './add-text.js';
         window.container::addText('Hello World!');
       `,
       'src/add-text.js': `
@@ -123,7 +92,7 @@ describe('serve-esnext', () => {
     await project.start().filter((output) => output.match(/Listening/));
 
     await browser.open('http://localhost:8080');
-    expect(await browser.find('#container', {text: 'Hello World!'}))
+    expect(await browser.find('#container', {text: 'Hello World!', wait: 2000}))
       .not.toBe(null);
   }));
 });

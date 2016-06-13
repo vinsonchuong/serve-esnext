@@ -34,7 +34,7 @@ export default class {
 
     const document = new Document(fileContents);
     document.head.appendChild(
-      '<script src="es6-module-loader/dist/es6-module-loader-dev.js"></script>'
+      '<script src="systemjs/dist/system.src.js"></script>'
     );
     return document.toString();
   }
