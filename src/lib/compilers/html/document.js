@@ -2,7 +2,7 @@ import * as parse5 from 'parse5';
 
 const treeAdapter = parse5.treeAdapters.default;
 
-export default class {
+export default class Document {
   constructor(document) {
     this.ast = typeof document === 'string' ?
       parse5.parse(document) :
