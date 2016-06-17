@@ -17,6 +17,13 @@ export default class Document {
     return parse5.serialize(this.ast).replace(/\n/g, '');
   }
 
+  *[Symbol.iterator]() {
+    yield this.ast.childNodes[1];
+    yield this.ast.childNodes[1].childNodes[0];
+    yield this.ast.childNodes[1].childNodes[0].childNodes[0];
+    yield this.ast.childNodes[1].childNodes[1];
+  }
+
   appendChild(htmlElementString) {
     const element = parse5.parseFragment(htmlElementString).childNodes[0];
     treeAdapter.appendChild(this.ast, element);
