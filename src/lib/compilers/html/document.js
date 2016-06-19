@@ -9,10 +9,6 @@ export default class Document {
       document;
   }
 
-  get head() {
-    return new Document(this.ast.childNodes[1].childNodes[0]);
-  }
-
   toString() {
     return parse5.serialize(this.ast).replace(/\n/g, '');
   }
@@ -25,6 +21,27 @@ export default class Document {
     for (const node of this.ast.childNodes || []) {
       yield* new Document(node);
     }
+  }
+
+  find(tagName, attrs = {}) {
+    const elements = [];
+    for (const element of this) {
+      if (
+        element.tagName === tagName &&
+        Object.entries(attrs).every(([n1, v1]) =>
+          element.attrs.some(({name: n2, value: v2}) =>
+            n1 === n2 && v1 === v2
+          )
+        )
+      ) {
+        elements.push(element);
+      }
+    }
+    return elements;
+  }
+
+  get head() {
+    return new Document(this.find('head')[0]);
   }
 
   appendChild(htmlElementString) {
