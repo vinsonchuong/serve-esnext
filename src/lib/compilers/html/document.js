@@ -18,10 +18,13 @@ export default class Document {
   }
 
   *[Symbol.iterator]() {
-    yield this.ast.childNodes[1];
-    yield this.ast.childNodes[1].childNodes[0];
-    yield this.ast.childNodes[1].childNodes[0].childNodes[0];
-    yield this.ast.childNodes[1].childNodes[1];
+    if (!this.ast.nodeName.startsWith('#')) {
+      yield this.ast;
+    }
+
+    for (const node of this.ast.childNodes || []) {
+      yield* new Document(node);
+    }
   }
 
   appendChild(htmlElementString) {
