@@ -13,6 +13,13 @@ export default class {
     document.head.appendChild(
       '<script src="systemjs/dist/system.src.js"></script>'
     );
+    for (const script of document.find('script', {type: 'module'})) {
+      script.remove();
+      document.head.appendChild(
+        `<script>System.import('${script.attributes.src}')</script>`
+      );
+    }
+
     return document.toString();
   }
 }

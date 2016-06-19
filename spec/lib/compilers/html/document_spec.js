@@ -11,7 +11,7 @@ describe('Document', () => {
       </article>
     `);
 
-    expect([...document].map((element) => element.tagName))
+    expect([...document].map((element) => element.ast.tagName))
       .toEqual(['html', 'head', 'meta', 'body', 'article', 'h1', 'p']);
   });
 

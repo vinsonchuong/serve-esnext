@@ -15,7 +15,7 @@ export default class Document {
 
   *[Symbol.iterator]() {
     if (this.ast.tagName) {
-      yield this.ast;
+      yield new Document(this.ast);
     }
 
     for (const node of this.ast.childNodes || []) {
@@ -27,11 +27,9 @@ export default class Document {
     const elements = [];
     for (const element of this) {
       if (
-        element.tagName === tagName &&
-        Object.entries(attrs).every(([n1, v1]) =>
-          element.attrs.some(({name: n2, value: v2}) =>
-            n1 === n2 && v1 === v2
-          )
+        element.ast.tagName === tagName &&
+        Object.entries(attrs).every(([name, value]) =>
+          element.attributes[name] === value
         )
       ) {
         elements.push(element);
@@ -41,12 +39,21 @@ export default class Document {
   }
 
   get head() {
-    return new Document(this.find('head')[0]);
+    return this.find('head')[0];
+  }
+
+  get attributes() {
+    return this.ast.attrs.reduce((attrs, {name, value}) =>
+      Object.assign(attrs, {[name]: value}), {});
   }
 
   appendChild(htmlElementString) {
     const element = parse5.parseFragment(htmlElementString).childNodes[0];
     treeAdapter.appendChild(this.ast, element);
+  }
+
+  remove() {
+    treeAdapter.detachNode(this.ast);
   }
 }
 

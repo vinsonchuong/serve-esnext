@@ -36,4 +36,30 @@ describe('HtmlCompiler', () => {
       '</html>'
     ].join(''));
   }));
+
+  it('supports <script type="module">', withDependencies(async (project) => {
+    await project.write({
+      'src/index.html': `
+        <!doctype html>
+        <meta charset="utf-8">
+        <script type="module" src="project/app.js"></script>
+        <div id="container"></div>
+      `
+    });
+
+    const compiler = new HtmlCompiler(project);
+    expect(await compiler.compile('index.html')).toBe([
+      '<!DOCTYPE html>',
+      '<html>',
+      '<head>',
+      '<meta charset="utf-8">',
+      '<script src="systemjs/dist/system.src.js"></script>',
+      "<script>System.import('project/app.js')</script>",
+      '</head>',
+      '<body>',
+      '<div id="container"></div>',
+      '</body>',
+      '</html>'
+    ].join(''));
+  }));
 });
