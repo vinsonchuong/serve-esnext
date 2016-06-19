@@ -18,7 +18,7 @@ export default class Document {
   }
 
   *[Symbol.iterator]() {
-    if (!this.ast.nodeName.startsWith('#')) {
+    if (this.ast.tagName) {
       yield this.ast;
     }
 

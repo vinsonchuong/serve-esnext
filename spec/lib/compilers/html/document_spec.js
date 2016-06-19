@@ -11,7 +11,7 @@ describe('Document', () => {
       </article>
     `);
 
-    expect([...document].map(n => n.nodeName))
+    expect([...document].map(n => n.tagName))
       .toEqual(['html', 'head', 'meta', 'body', 'article', 'h1', 'p']);
   });
 });
