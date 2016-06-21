@@ -1,4 +1,6 @@
+import * as path from 'path';
 import * as babel from 'babel-core';
+import Builder from 'systemjs-builder';
 
 export default class {
   constructor(directory) {
@@ -8,7 +10,10 @@ export default class {
   async compile(requestedPath) {
     const packageJson = await this.directory.read('package.json');
 
-    if (requestedPath.startsWith(`${packageJson.name}/`)) {
+    if (
+      requestedPath === packageJson.name ||
+      requestedPath.startsWith(`${packageJson.name}/`)
+    ) {
       const absolutePath = this.directory.path(
         requestedPath.replace(packageJson.name, 'src'));
       const fileContents = await this.directory.read(absolutePath);
@@ -20,10 +25,22 @@ export default class {
           'transform-decorators-legacy'
         ]
       }).code;
-    }
+    } else {
+      const builder = new Builder({
+        defaultJSExtensions: true
+      });
+      const [packageName] = requestedPath.split('/');
 
-    const absolutePath = require.resolve(requestedPath);
-    const fileContents = await this.directory.read(absolutePath);
-    return fileContents;
+      if (packageName === 'systemjs') {
+        const absolutePath = require.resolve(requestedPath);
+        return await this.directory.read(absolutePath);
+      } else {
+        const packagePath = path.dirname(
+          require.resolve(`${packageName}/package.json`));
+        const {source, modules} = await builder.bundle(
+          `[${packagePath}/**/*.js]`);
+        return source;
+      }
+    }
   }
 }

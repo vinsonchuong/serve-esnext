@@ -30,7 +30,7 @@ describe('JsCompiler', () => {
     expect(compiledCode).toContain('System.register');
   }));
 
-  it('does not compile npm packages', withDependencies(async (project) => {
+  it('compiles npm packages into modules', withDependencies(async (project) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -39,8 +39,20 @@ describe('JsCompiler', () => {
     });
 
     const compiler = new JsCompiler(project);
-    const modulePath = 'systemjs/dist/system.src.js';
-    expect(await compiler.compile(modulePath))
-      .toBe(await project.read(require.resolve(modulePath)));
+    expect(await compiler.compile('react'))
+      .toContain("System.registerDynamic('react'");
+  }));
+
+  it('does not compile SystemJS', withDependencies(async (project) => {
+    await project.write({
+      'package.json': {
+        name: 'project',
+        private: true
+      }
+    });
+
+    const compiler = new JsCompiler(project);
+    expect(await compiler.compile('systemjs/dist/system.src.js'))
+      .not.toContain("System.registerDynamic('systemjs/dist/system.src.js')");
   }));
 });

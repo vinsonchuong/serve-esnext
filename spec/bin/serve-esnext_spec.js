@@ -75,8 +75,8 @@ describe('serve-esnext', () => {
       'src/index.html': `
         <!doctype html>
         <meta charset="utf-8">
+        <script type="module" src="project/app.js"></script>
         <div id="container"></div>
-        <script>System.import('project/app.js')</script>
       `,
       'src/app.js': `
         import addText from './add-text.js';
@@ -93,6 +93,40 @@ describe('serve-esnext', () => {
 
     await browser.open('http://localhost:8080');
     expect(await browser.find('#container', {text: 'Hello World!', wait: 2000}))
+      .not.toBe(null);
+  }));
+
+  it('serves external dependencies', withDependencies(async (project, browser) => {
+    await project.write({
+      'package.json': {
+        name: 'project',
+        private: true,
+        scripts: {
+          start: 'serve-esnext'
+        }
+      },
+      'src/index.html': `
+        <!doctype html>
+        <meta charset="utf-8">
+        <script type="module" src="project/app.js"></script>
+        <div id="container"></div>
+      `,
+      'src/app.js': `
+        import React from 'react';
+        import ReactDOM from 'react-dom';
+
+        function Component() {
+          return React.createElement('p', 'Hello World!');
+        }
+
+        ReactDOM.render(React.createElement(Component), window.root);
+      `
+    });
+
+    await project.start().filter((output) => output.match(/Listening/));
+
+    await browser.open('http://localhost:8080');
+    expect(await browser.find('#container p', {text: 'Hello World!', wait: 2000}))
       .not.toBe(null);
   }));
 });
