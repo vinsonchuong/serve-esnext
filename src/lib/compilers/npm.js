@@ -18,6 +18,7 @@ export default class {
       packageConfigPaths: ['./node_modules/*/package.json']
     });
     const {source} = await builder.bundle(requestedPath, {
+      format: 'es6',
       fetch(load, fetch) {
         if (load.address.match(/node_modules\/[^/]*\.js$/)) {
           load.address = load.address.replace(/\.js$/, '/index.js');
