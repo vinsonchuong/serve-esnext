@@ -1,12 +1,15 @@
 import {Buffer} from 'buffer';
 import {Server} from 'http';
-import * as url from 'url';
 import * as path from 'path';
-import {AwaitableObservable} from 'esnext-async';
+import * as url from 'url';
 
+const mimeTypes = {
+  '.js': 'application/javascript'
+};
 const types = {
-  html: 'text/html',
-  js: 'application/javascript'
+  'text/html': 'html',
+  'application/x-es-module': 'js',
+  'application/javascript': 'js'
 };
 
 class Request {
@@ -22,15 +25,22 @@ class Request {
       pathname.replace(/^\//, '');
   }
 
+  get mimeType() {
+    const accept = this.request.headers.accept.split(/\s*,\s*/)[0];
+    if (accept === '*/*') {
+      return mimeTypes[path.extname(this.request.url)];
+    } else {
+      return accept;
+    }
+  }
+
   get type() {
-    return path.extname(this.path).slice(1);
+    return types[this.mimeType];
   }
 
   respond(body) {
-    const mimeType = types[this.type];
-
     this.response.writeHead(200, {
-      'Content-Type': `${mimeType}; charset=utf-8`,
+      'Content-Type': `${this.mimeType}; charset=utf-8`,
       'Content-Length': Buffer.byteLength(body)
     });
     this.response.write(body);
@@ -39,24 +49,18 @@ class Request {
   }
 }
 
-export default class extends AwaitableObservable {
-  constructor(port) {
-    const server = new Server();
-
-    super((observer) => {
-      server.on('request', (request, response) => {
-        observer.next(new Request(request, response));
-      });
+export default class {
+  constructor(port, handleRequest) {
+    this.server = new Server();
+    this.server.on('request', (request, response) => {
+      handleRequest(new Request(request, response));
     });
-
     this.listening = new Promise((resolve) => {
-      server.listen(port, () => {
+      this.server.listen(port, () => {
         process.stdout.write(`Listening on :${8080}\n`);
         resolve();
       });
     });
-
-    this.server = server;
   }
 
   async close() {

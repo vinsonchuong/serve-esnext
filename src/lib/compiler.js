@@ -1,20 +1,23 @@
 import HtmlCompiler from 'serve-esnext/lib/compilers/html';
 import JsCompiler from 'serve-esnext/lib/compilers/js';
-
-class DefaultCompiler {
-  compile() {
-    return '';
-  }
-}
+import NpmCompiler from 'serve-esnext/lib/compilers/npm';
+import DefaultCompiler from 'serve-esnext/lib/compilers/default';
 
 export default class {
   constructor(directory) {
-    this.html = new HtmlCompiler(directory);
-    this.js = new JsCompiler(directory);
-    this.default = new DefaultCompiler(directory);
+    this.compilers = [
+      new HtmlCompiler(directory),
+      new JsCompiler(directory),
+      new NpmCompiler(directory),
+      new DefaultCompiler(directory)
+    ];
   }
 
   async compile({type, path}) {
-    return await this[type].compile(path);
+    for (const compiler of this.compilers) {
+      if (await compiler.matches({type, path})) {
+        return await compiler.compile(path);
+      }
+    }
   }
 }

@@ -1,12 +1,20 @@
 import {Buffer} from 'buffer';
 import fetch from 'node-fetch';
 import HttpServer from 'serve-esnext/lib/http-server';
+import {AwaitableObservable} from 'esnext-async';
 
 function withHttpServer(test) {
   return async () => {
-    const httpServer = new HttpServer(8080);
+    const handleRequest = jasmine.createSpy('handleRequest');
+    let httpServer;
+    const requests = new AwaitableObservable((observer) => {
+      httpServer = new HttpServer(8080, (request) => {
+        observer.next(request);
+      });
+    });
     try {
-      await test(httpServer);
+      await httpServer.listening;
+      await test(requests);
     } finally {
       await httpServer.close();
     }
@@ -14,14 +22,16 @@ function withHttpServer(test) {
 }
 
 describe('HttpServer', () => {
-  it('routes / to index.html', withHttpServer(async (httpServer) => {
-    await httpServer.listening;
-
+  it('routes / to index.html', withHttpServer(async (requests) => {
     const htmlString = '<!doctype html>\n<meta charset="utf-8">';
 
-    const responsePromise = fetch('http://localhost:8080');
+    const responsePromise = fetch('http://localhost:8080', {
+      headers: {
+        Accept: 'text/html, */*'
+      }
+    });
 
-    const request = await httpServer;
+    const request = await requests;
     expect(request.path).toBe('index.html');
     expect(request.type).toBe('html');
     request.respond(htmlString);
@@ -34,14 +44,16 @@ describe('HttpServer', () => {
       .toBe('text/html; charset=utf-8');
   }));
 
-  it('routes app.js', withHttpServer(async (httpServer) => {
-    await httpServer.listening;
-
+  it('routes app.js', withHttpServer(async (requests) => {
     const code = 'console.log("Hello World!");';
 
-    const responsePromise = fetch('http://localhost:8080/app.js');
+    const responsePromise = fetch('http://localhost:8080/app.js', {
+      headers: {
+        Accept: 'application/x-es-module, */*'
+      }
+    });
 
-    const request = await httpServer;
+    const request = await requests;
     expect(request.path).toBe('app.js');
     expect(request.type).toBe('js');
     request.respond(code);
@@ -51,6 +63,50 @@ describe('HttpServer', () => {
     expect(response.headers.get('Content-Length'))
       .toBe(Buffer.byteLength(code).toString());
     expect(response.headers.get('Content-Type'))
+      .toBe('application/x-es-module; charset=utf-8');
+  }));
+
+  it('routes system.js', withHttpServer(async (requests) => {
+    const code = 'console.log("Hello World!");';
+
+    const responsePromise = fetch('http://localhost:8080/system.js', {
+      headers: {
+        Accept: '*/*'
+      }
+    });
+
+    const request = await requests;
+    expect(request.path).toBe('system.js');
+    expect(request.type).toBe('js');
+    request.respond(code);
+
+    const response = await responsePromise;
+    expect(await response.text()).toBe(code);
+    expect(response.headers.get('Content-Length'))
+      .toBe(Buffer.byteLength(code).toString());
+    expect(response.headers.get('Content-Type'))
       .toBe('application/javascript; charset=utf-8');
+  }));
+
+  it('routes npm modules', withHttpServer(async (requests) => {
+    const code = 'console.log("Hello World!");';
+
+    const responsePromise = fetch('http://localhost:8080/react', {
+      headers: {
+        Accept: 'application/x-es-module, */*'
+      }
+    });
+
+    const request = await requests;
+    expect(request.path).toBe('react');
+    expect(request.type).toBe('js');
+    request.respond(code);
+
+    const response = await responsePromise;
+    expect(await response.text()).toBe(code);
+    expect(response.headers.get('Content-Length'))
+      .toBe(Buffer.byteLength(code).toString());
+    expect(response.headers.get('Content-Type'))
+      .toBe('application/x-es-module; charset=utf-8');
   }));
 });

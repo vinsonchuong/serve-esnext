@@ -13,6 +13,12 @@ function withDependencies(test) {
 }
 
 describe('HtmlCompiler', () => {
+  it('matches requests with type html', withDependencies(async (project) => {
+    const compiler = new HtmlCompiler(project);
+    expect(await compiler.matches({type: 'html'})).toBe(true);
+    expect(await compiler.matches({type: 'js'})).toBe(false);
+  }));
+
   it('adds the ES6 Module Loader Polyfill', withDependencies(async (project) => {
     await project.write({
       'src/index.html': `
@@ -28,7 +34,8 @@ describe('HtmlCompiler', () => {
       '<html>',
       '<head>',
       '<meta charset="utf-8">',
-      '<script src="systemjs/dist/system.src.js"></script>',
+      '<script src="systemjs/dist/system.js"></script>',
+      '<script>System.config({defaultJSExtensions: true})</script>',
       '</head>',
       '<body>',
       '<div id="container"></div>',
@@ -53,7 +60,8 @@ describe('HtmlCompiler', () => {
       '<html>',
       '<head>',
       '<meta charset="utf-8">',
-      '<script src="systemjs/dist/system.src.js"></script>',
+      '<script src="systemjs/dist/system.js"></script>',
+      '<script>System.config({defaultJSExtensions: true})</script>',
       "<script>System.import('project/app.js')</script>",
       '</head>',
       '<body>',

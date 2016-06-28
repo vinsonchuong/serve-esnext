@@ -32,6 +32,7 @@ describe('serve-esnext', () => {
       const project = new Project('project');
       const browser = new PhantomJS();
       try {
+        await project.symlink('../node_modules', 'node_modules');
         await test(project, browser);
       } finally {
         await project.stop();
@@ -116,10 +117,10 @@ describe('serve-esnext', () => {
         import ReactDOM from 'react-dom';
 
         function Component() {
-          return React.createElement('p', 'Hello World!');
+          return React.createElement('p', null, 'Hello World!');
         }
 
-        ReactDOM.render(React.createElement(Component), window.root);
+        ReactDOM.render(React.createElement(Component), window.container);
       `
     });
 

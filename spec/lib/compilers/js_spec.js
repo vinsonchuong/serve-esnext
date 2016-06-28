@@ -13,6 +13,24 @@ function withDependencies(test) {
 }
 
 describe('JsCompiler', () => {
+  it('matches requests of type js for paths within src', withDependencies(async (project) => {
+    await project.write({
+      'package.json': {
+        name: 'project',
+        private: true
+      },
+      'src/app.js': `
+        console.log('Hello World!');
+      `
+    });
+
+    const compiler = new JsCompiler(project);
+    expect(await compiler.matches({type: 'js', path: 'project.js'})).toBe(true);
+    expect(await compiler.matches({type: 'js', path: 'project/app.js'})).toBe(true);
+    expect(await compiler.matches({type: 'js', path: 'package/app.js'})).toBe(false);
+    expect(await compiler.matches({type: 'html'})).toBe(false);
+  }));
+
   it('compiles ES.next modules', withDependencies(async (project) => {
     await project.write({
       'package.json': {
@@ -27,32 +45,6 @@ describe('JsCompiler', () => {
     const compiler = new JsCompiler(project);
     const compiledCode = await compiler.compile('project/app.js');
     expect(compiledCode).toContain("console.log('Hello World!')");
-    expect(compiledCode).toContain('System.register');
-  }));
-
-  it('compiles npm packages into modules', withDependencies(async (project) => {
-    await project.write({
-      'package.json': {
-        name: 'project',
-        private: true
-      }
-    });
-
-    const compiler = new JsCompiler(project);
-    expect(await compiler.compile('react'))
-      .toContain("System.registerDynamic('react'");
-  }));
-
-  it('does not compile SystemJS', withDependencies(async (project) => {
-    await project.write({
-      'package.json': {
-        name: 'project',
-        private: true
-      }
-    });
-
-    const compiler = new JsCompiler(project);
-    expect(await compiler.compile('systemjs/dist/system.src.js'))
-      .not.toContain("System.registerDynamic('systemjs/dist/system.src.js')");
+    expect(compiledCode).toContain("System.register('project/app.js");
   }));
 });
