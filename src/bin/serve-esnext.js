@@ -5,7 +5,8 @@ import Compiler from 'serve-esnext/lib/compiler';
 
 const directory = new Directory('.');
 const compiler = new Compiler(directory);
-new HttpServer(8080, tryCatch(async (request) => {
+const server = new HttpServer(8080);
+server.forEach(tryCatch(async (request) => {
   const compiledCode = await compiler.compile(request);
   request.respond(compiledCode);
 }));

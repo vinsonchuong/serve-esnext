@@ -1,6 +1,6 @@
 import Builder from 'systemjs-builder';
-import * as url from 'url';
-import * as path from 'path';
+import {parse as parseUrl} from 'url';
+import {parse as parsePath, basename} from 'path';
 
 export default class {
   constructor(directory) {
@@ -27,9 +27,9 @@ export default class {
     const {source} = await builder.bundle(requestedPath, {
       format: 'es6',
       fetch: async (load, fetch) => {
-        const pathInfo = path.parse(url.parse(load.address).path);
+        const pathInfo = parsePath(parseUrl(load.address).path);
 
-        if (path.basename(pathInfo.dir) === 'node_modules') {
+        if (basename(pathInfo.dir) === 'node_modules') {
           const packageJson = await this.directory.read(
             `${pathInfo.dir}/${pathInfo.name}/package.json`);
           const main = `${pathInfo.name}/${packageJson.main || 'index.js'}`;

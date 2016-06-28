@@ -29,9 +29,8 @@ class Request {
     const accept = this.request.headers.accept.split(/\s*,\s*/)[0];
     if (accept === '*/*') {
       return mimeTypes[path.extname(this.request.url)];
-    } else {
-      return accept;
     }
+    return accept;
   }
 
   get type() {
@@ -50,16 +49,19 @@ class Request {
 }
 
 export default class {
-  constructor(port, handleRequest) {
+  constructor(port) {
     this.server = new Server();
-    this.server.on('request', (request, response) => {
-      handleRequest(new Request(request, response));
-    });
     this.listening = new Promise((resolve) => {
       this.server.listen(port, () => {
         process.stdout.write(`Listening on :${8080}\n`);
         resolve();
       });
+    });
+  }
+
+  forEach(handleRequest) {
+    this.server.on('request', (request, response) => {
+      handleRequest(new Request(request, response));
     });
   }
 

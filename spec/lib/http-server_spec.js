@@ -5,10 +5,9 @@ import {AwaitableObservable} from 'esnext-async';
 
 function withHttpServer(test) {
   return async () => {
-    const handleRequest = jasmine.createSpy('handleRequest');
-    let httpServer;
+    const httpServer = new HttpServer(8080);
     const requests = new AwaitableObservable((observer) => {
-      httpServer = new HttpServer(8080, (request) => {
+      httpServer.forEach((request) => {
         observer.next(request);
       });
     });

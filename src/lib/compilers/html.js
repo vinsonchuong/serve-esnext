@@ -18,7 +18,7 @@ export default class {
       '<script src="systemjs/dist/system.js"></script>'
     );
     document.head.appendChild(
-      `<script>System.config({defaultJSExtensions: true})</script>`
+      '<script>System.config({defaultJSExtensions: true})</script>'
     );
     for (const script of document.find('script', {type: 'module'})) {
       script.remove();
