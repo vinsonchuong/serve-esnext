@@ -7,12 +7,6 @@ export default class {
     this.directory = directory;
   }
 
-  async matches({type, path}) {
-    const {name} = await this.directory.read('package.json');
-    return type === 'js' && !path.startsWith(`${name}/`) &&
-      path !== `${name}.js`;
-  }
-
   async compile(requestedPath) {
     if (requestedPath.startsWith('systemjs/')) {
       return await this.directory.read(`node_modules/${requestedPath}`);

@@ -13,12 +13,6 @@ function withDependencies(test) {
 }
 
 describe('HtmlCompiler', () => {
-  it('matches requests with type html', withDependencies(async (project) => {
-    const compiler = new HtmlCompiler(project);
-    expect(await compiler.matches({type: 'html'})).toBe(true);
-    expect(await compiler.matches({type: 'js'})).toBe(false);
-  }));
-
   it('adds the ES6 Module Loader Polyfill', withDependencies(async (project) => {
     await project.write({
       'src/index.html': `

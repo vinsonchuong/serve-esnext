@@ -5,12 +5,6 @@ export default class {
     this.directory = directory;
   }
 
-  async matches({type, path}) {
-    const {name} = await this.directory.read('package.json');
-    return type === 'js' &&
-      (path.startsWith(`${name}/`) || path === `${name}.js`);
-  }
-
   async compile(requestedPath) {
     const packageJson = await this.directory.read('package.json');
     const absolutePath = this.directory.path(

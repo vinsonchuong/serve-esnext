@@ -5,10 +5,6 @@ export default class {
     this.directory = directory;
   }
 
-  matches({type}) {
-    return type === 'html';
-  }
-
   async compile(requestedPath) {
     const absolutePath = this.directory.path('src', requestedPath);
     const fileContents = await this.directory.read(absolutePath);

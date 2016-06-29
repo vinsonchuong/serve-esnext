@@ -9,17 +9,6 @@ function withDependencies(test) {
 }
 
 describe('NpmCompiler', () => {
-  it('matches requests of type js for paths outside of src', withDependencies(async (project) => {
-    const compiler = new NpmCompiler(project);
-    expect(await compiler.matches({type: 'js', path: 'react.js'}))
-      .toBe(true);
-    expect(await compiler.matches({type: 'js', path: 'react/react.js'}))
-      .toBe(true);
-    expect(await compiler.matches({type: 'js', path: 'serve-esnext.js'}))
-      .toBe(false);
-    expect(await compiler.matches({type: 'html'})).toBe(false);
-  }));
-
   it('does not attempt to compile SystemJS', withDependencies(async (project) => {
     const compiler = new NpmCompiler(project);
     const systemJsPath = 'systemjs/dist/system.js';
