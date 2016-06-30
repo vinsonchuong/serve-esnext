@@ -1,5 +1,5 @@
 import Directory from 'directory-helpers';
-import JsCompiler from 'serve-esnext/lib/compilers/js';
+import compileJs from 'serve-esnext/lib/compilers/compile-js';
 
 function withDependencies(test) {
   return async () => {
@@ -12,7 +12,7 @@ function withDependencies(test) {
   };
 }
 
-describe('JsCompiler', () => {
+describe('compileJs', () => {
   it('compiles ES.next modules', withDependencies(async (project) => {
     await project.write({
       'package.json': {
@@ -24,8 +24,7 @@ describe('JsCompiler', () => {
       `
     });
 
-    const compiler = new JsCompiler(project);
-    const compiledCode = await compiler.compile('project/app.js');
+    const compiledCode = await compileJs(project, 'project/app.js');
     expect(compiledCode).toContain("console.log('Hello World!')");
     expect(compiledCode).toContain("System.register('project/app.js");
   }));

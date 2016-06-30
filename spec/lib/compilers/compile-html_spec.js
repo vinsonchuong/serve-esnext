@@ -1,5 +1,5 @@
 import Directory from 'directory-helpers';
-import HtmlCompiler from 'serve-esnext/lib/compilers/html';
+import compileHtml from 'serve-esnext/lib/compilers/compile-html';
 
 function withDependencies(test) {
   return async () => {
@@ -12,7 +12,7 @@ function withDependencies(test) {
   };
 }
 
-describe('HtmlCompiler', () => {
+describe('compileHtml', () => {
   it('adds the ES6 Module Loader Polyfill', withDependencies(async (project) => {
     await project.write({
       'src/index.html': `
@@ -22,8 +22,7 @@ describe('HtmlCompiler', () => {
       `
     });
 
-    const compiler = new HtmlCompiler(project);
-    expect(await compiler.compile('index.html')).toBe([
+    expect(await compileHtml(project, 'index.html')).toBe([
       '<!DOCTYPE html>',
       '<html>',
       '<head>',
@@ -48,8 +47,7 @@ describe('HtmlCompiler', () => {
       `
     });
 
-    const compiler = new HtmlCompiler(project);
-    expect(await compiler.compile('index.html')).toBe([
+    expect(await compileHtml(project, 'index.html')).toBe([
       '<!DOCTYPE html>',
       '<html>',
       '<head>',
