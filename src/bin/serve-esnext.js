@@ -5,6 +5,4 @@ import compile from 'serve-esnext/lib/compile';
 
 const directory = new Directory('.');
 const server = new HttpServer(8080);
-server.forEach(tryCatch(async (request) => {
-  request.respond(await compile(directory, request));
-}));
+server.handle(tryCatch(async (request) => await compile(directory, request)));

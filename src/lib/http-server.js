@@ -13,9 +13,8 @@ const types = {
 };
 
 class Request {
-  constructor(request, response) {
+  constructor(request) {
     this.request = request;
-    this.response = response;
   }
 
   get path() {
@@ -36,16 +35,6 @@ class Request {
   get type() {
     return types[this.mimeType];
   }
-
-  respond(body) {
-    this.response.writeHead(200, {
-      'Content-Type': `${this.mimeType}; charset=utf-8`,
-      'Content-Length': Buffer.byteLength(body)
-    });
-    this.response.write(body);
-    this.response.end();
-
-  }
 }
 
 export default class {
@@ -59,9 +48,17 @@ export default class {
     });
   }
 
-  forEach(handleRequest) {
-    this.server.on('request', (request, response) => {
-      handleRequest(new Request(request, response));
+  handle(handleRequest) {
+    this.server.on('request', async (request, response) => {
+      const requestProxy = new Request(request);
+      const body = await handleRequest(requestProxy);
+
+      response.writeHead(200, {
+        'Content-Type': `${requestProxy.mimeType}; charset=utf-8`,
+        'Content-Length': Buffer.byteLength(body)
+      });
+      response.write(body);
+      response.end();
     });
   }
 

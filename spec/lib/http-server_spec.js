@@ -7,9 +7,11 @@ function withHttpServer(test) {
   return async () => {
     const httpServer = new HttpServer(8080);
     const requests = new AwaitableObservable((observer) => {
-      httpServer.forEach((request) => {
-        observer.next(request);
-      });
+      httpServer.handle(async (request) =>
+        await new Promise((resolve) => {
+          observer.next(Object.assign(request, {resolve}));
+        })
+      );
     });
     try {
       await httpServer.listening;
@@ -33,7 +35,7 @@ describe('HttpServer', () => {
     const request = await requests;
     expect(request.path).toBe('index.html');
     expect(request.type).toBe('html');
-    request.respond(htmlString);
+    request.resolve(htmlString);
 
     const response = await responsePromise;
     expect(await response.text()).toBe(htmlString);
@@ -55,7 +57,7 @@ describe('HttpServer', () => {
     const request = await requests;
     expect(request.path).toBe('app.js');
     expect(request.type).toBe('js');
-    request.respond(code);
+    request.resolve(code);
 
     const response = await responsePromise;
     expect(await response.text()).toBe(code);
@@ -77,7 +79,7 @@ describe('HttpServer', () => {
     const request = await requests;
     expect(request.path).toBe('system.js');
     expect(request.type).toBe('js');
-    request.respond(code);
+    request.resolve(code);
 
     const response = await responsePromise;
     expect(await response.text()).toBe(code);
@@ -99,7 +101,7 @@ describe('HttpServer', () => {
     const request = await requests;
     expect(request.path).toBe('react');
     expect(request.type).toBe('js');
-    request.respond(code);
+    request.resolve(code);
 
     const response = await responsePromise;
     expect(await response.text()).toBe(code);
