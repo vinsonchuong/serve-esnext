@@ -7,9 +7,11 @@ export default async function(directory, {type, path}) {
 
   if (type === 'html') {
     return await compileHtml(directory, path);
-  } else if (type === 'js' && (path.startsWith(`${name}/`) || path === `${name}.js`)) {
-    return await compileJs(directory, path);
-  } else if (type === 'js' && !path.startsWith(`${name}/`) && path !== `${name}.js`) {
+  } else if (type === 'js') {
+    if (path.startsWith(`${name}/`) || path === `${name}.js`) {
+      return await compileJs(directory, path);
+    }
+
     return await compileNpm(directory, path);
   }
 
