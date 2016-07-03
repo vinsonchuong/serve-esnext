@@ -2,6 +2,8 @@ import Builder from 'systemjs-builder';
 import {parse as parseUrl} from 'url';
 import {parse as parsePath, basename} from 'path';
 
+const cache = new Map();
+
 const builder = new Builder({
   paths: {
     '*': 'node_modules/*'
@@ -10,8 +12,14 @@ const builder = new Builder({
 });
 
 export default async function(directory, requestedPath) {
+  if (cache.has(requestedPath)) {
+    return cache.get(requestedPath);
+  }
+
   if (requestedPath.startsWith('systemjs/')) {
-    return await directory.read(`node_modules/${requestedPath}`);
+    const source = await directory.read(`node_modules/${requestedPath}`);
+    cache.set(requestedPath, source);
+    return source;
   }
 
   const {source} = await builder.bundle(requestedPath, {
@@ -29,5 +37,6 @@ export default async function(directory, requestedPath) {
       return await fetch(load);
     }
   });
+  cache.set(requestedPath, source);
   return source;
 }
