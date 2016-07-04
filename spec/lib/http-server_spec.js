@@ -110,4 +110,26 @@ describe('HttpServer', () => {
     expect(response.headers.get('Content-Type'))
       .toBe('application/x-es-module; charset=utf-8');
   }));
+
+  it('routes requests with no Accept header by file extension', withHttpServer(async (requests) => {
+    const code = '...';
+
+    const responsePromise = fetch('http://localhost:8080/system.js.map', {
+      headers: {
+        Accept: ''
+      }
+    });
+
+    const request = await requests;
+    expect(request.path).toBe('system.js.map');
+    expect(request.type).toBe('static');
+    request.resolve(code);
+
+    const response = await responsePromise;
+    expect(await response.text()).toBe(code);
+    expect(response.headers.get('Content-Length'))
+      .toBe(Buffer.byteLength(code).toString());
+    expect(response.headers.get('Content-Type'))
+      .toBe('application/json; charset=utf-8');
+  }));
 });
