@@ -1,10 +1,11 @@
 import * as babel from 'babel-core';
+import Directory from 'directory-helpers';
 
-export default async function(directory, requestedPath) {
-  const packageJson = await directory.read('package.json');
-  const absolutePath = directory.path(
-    requestedPath.replace(packageJson.name, 'src'));
-  const fileContents = await directory.read(absolutePath);
+const directory = new Directory('src');
+
+export default async function(requestedPath) {
+  const path = requestedPath.replace(/.*?\//, '');
+  const fileContents = await directory.read(path);
   const {code} = babel.transform(fileContents, {
     moduleId: requestedPath,
     presets: ['es2015', 'stage-0'],

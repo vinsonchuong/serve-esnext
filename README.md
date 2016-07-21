@@ -58,6 +58,19 @@ npm start
 
 The application can be accessed from `http://localhost:8080`.
 
+`serve-esnext` can also be run as an `express` middleware as follows:
+
+```js
+import * as path from 'path';
+import express from 'express';
+import serveEsnext from 'serve-esnext';
+
+express()
+  .use(serveEsnext)
+  .use(express.static(path.resolve()))
+  .listen(8080);
+```
+
 ## Development
 ### Getting Started
 The application requires the following external dependencies:

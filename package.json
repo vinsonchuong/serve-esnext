@@ -12,6 +12,7 @@
     "README.md",
     "src"
   ],
+  "main": "src/index.js",
   "bin": {
     "serve-esnext": "src/bin/serve-esnext.js"
   },
@@ -24,8 +25,9 @@
     "test": "eslint && jasmine"
   },
   "dependencies": {
-    "directory-helpers": "^0.1.0",
+    "directory-helpers": "^0.1.1",
     "esnext-async": "^0.0.6",
+    "express": "^4.14.0",
     "parse5": "^2.1.5",
     "babel-core": "^6.10.4",
     "babel-preset-es2015": "^6.9.0",

@@ -1,12 +1,14 @@
+import Directory from 'directory-helpers';
 import Document from 'serve-esnext/lib/compilers/html/document';
 
-export default async function(directory, requestedPath) {
-  const absolutePath = directory.path('src', requestedPath);
-  const fileContents = await directory.read(absolutePath);
+const directory = new Directory('src');
 
-  const document = new Document(fileContents);
+export default async function() {
+  const html = await directory.read('index.html');
+  const document = new Document(html);
+
   document.head.appendChild(
-    '<script src="systemjs/dist/system.js"></script>'
+    '<script src="node_modules/systemjs/dist/system.js"></script>'
   );
   document.head.appendChild(
     '<script>System.config({defaultJSExtensions: true})</script>'
