@@ -1,6 +1,6 @@
 {
   "name": "serve-esnext",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Seamlessly run ES.Next code in the browser",
   "keywords": ["esnext", "es6", "es2015", "server"],
   "homepage": "https://github.com/vinsonchuong/serve-esnext",
