@@ -47,7 +47,7 @@ The `index.html` should import `index.js` as follows:
 ```html
 <!doctype html>
 <meta charset="utf-8">
-<script type="module" src="project"></script>
+<script type="module" src="project/index.js"></script>
 ```
 
 From the command line, run:

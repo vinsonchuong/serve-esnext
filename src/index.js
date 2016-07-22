@@ -16,7 +16,7 @@ export default tryCatch(async function middleware(request, response, next) {
     return;
   }
 
-  if (request.get('Accept').includes('application/x-es-module')) {
+  if ((request.get('Accept') || '').includes('application/x-es-module')) {
     response.send(
       requestedPath.startsWith(`${name}/`) || requestedPath === `${name}.js` ?
         await compileJs(requestedPath) :
