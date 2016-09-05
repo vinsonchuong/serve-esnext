@@ -1,4 +1,5 @@
 import {childProcess} from 'node-promise-es6';
+import register from 'test-inject';
 import Directory from 'directory-helpers';
 import PhantomJS from 'phantomjs-adapter';
 
@@ -26,23 +27,22 @@ class Project extends Directory {
   }
 }
 
-describe('serve-esnext', () => {
-  function withDependencies(test) {
-    return async () => {
-      const project = new Project('project');
-      const browser = new PhantomJS();
-      try {
-        await project.symlink('../node_modules', 'node_modules');
-        await test(project, browser);
-      } finally {
-        await project.stop();
-        await project.remove();
-        await browser.exit();
-      }
-    };
+const inject = register({
+  project: {
+    setUp: () => new Project('project'),
+    tearDown: async (project) => {
+      await project.stop();
+      await project.remove();
+    }
+  },
+  browser: {
+    setUp: () => new PhantomJS(),
+    tearDown: async (browser) => await browser.exit()
   }
+});
 
-  it('serves index.html when requesting /', withDependencies(async (project, browser) => {
+describe('serve-esnext', () => {
+  it('serves index.html when requesting /', inject(async ({project, browser}) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -57,6 +57,7 @@ describe('serve-esnext', () => {
         <div id="container">Hello World!</div>
       `
     });
+    await project.symlink('../node_modules', 'node_modules');
 
     await project.start().filter((output) => output.match(/Listening/));
 
@@ -64,7 +65,7 @@ describe('serve-esnext', () => {
     expect((await browser.find('#container')).textContent).toBe('Hello World!');
   }));
 
-  it('serves ES.next modules compiled into ES5', withDependencies(async (project, browser) => {
+  it('serves ES.next modules compiled into ES5', inject(async ({project, browser}) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -89,6 +90,7 @@ describe('serve-esnext', () => {
         }
       `
     });
+    await project.symlink('../node_modules', 'node_modules');
 
     await project.start().filter((output) => output.match(/Listening/));
 
@@ -97,7 +99,7 @@ describe('serve-esnext', () => {
       .not.toBe(null);
   }));
 
-  it('serves external dependencies', withDependencies(async (project, browser) => {
+  it('serves external dependencies', inject(async ({project, browser}) => {
     await project.write({
       'package.json': {
         name: 'project',
@@ -123,11 +125,12 @@ describe('serve-esnext', () => {
         ReactDOM.render(React.createElement(Component), window.container);
       `
     });
+    await project.symlink('../node_modules', 'node_modules');
 
     await project.start().filter((output) => output.match(/Listening/));
 
     await browser.open('http://localhost:8080');
-    expect(await browser.find('#container p', {text: 'Hello World!', wait: 2000}))
+    expect(await browser.find('#container p', {text: 'Hello World!', wait: 5000}))
       .not.toBe(null);
-  }));
+  }), 10000);
 });
