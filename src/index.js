@@ -4,7 +4,7 @@ import compileHtml from 'serve-esnext/lib/compilers/compile-html';
 import compileJs from 'serve-esnext/lib/compilers/compile-js';
 import compileNpm from 'serve-esnext/lib/compilers/compile-npm';
 
-export default tryCatch(async function middleware(request, response, next) {
+export default tryCatch(async (request, response, next) => {
   /* eslint-disable global-require, lines-around-comment */
   const {name} = require(path.resolve('package.json'));
   /* eslint-enable global-require, lines-around-comment */
